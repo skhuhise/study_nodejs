@@ -1,0 +1,11 @@
+console.log(1+1);
+console.log(4-1);
+console.log(2*2);
+console.log(10/2);
+console.log('1'+'1');
+console.log('1 '+'12 51');
+console.log("asdfasdf");
+console.log('asdfasdfasq  qwerwqe');
+var str = "my test length find good";
+console.log(str.length);
+console.log('it is true?'.length);
