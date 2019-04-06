@@ -1,0 +1,25 @@
+{
+  "name": "study",
+  "version": "1.0.0",
+  "description": "",
+  "main": "/ServerTest/testServer.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/skhuhise/study_nodejs.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/skhuhise/study_nodejs/issues"
+  },
+  "homepage": "https://github.com/skhuhise/study_nodejs#readme",
+  "dependencies": {
+    "sanitize-html": "^1.20.0"
+  }
+}
