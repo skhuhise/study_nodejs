@@ -2,9 +2,9 @@ var http = require('http');
 var fs = require('fs');
 var url = require('url');
 var qs = require('querystring');
-var template = require('../lib/template.js');
-var view = require('../lib/view.js');
-var process = require('../lib/process.js');
+var template = require('./lib/template.js');
+var view = require('./lib/view.js');
+var process = require('./lib/process.js');
 
 var app = http.createServer(function(request, response) {
     var requestUrl = request.url;
@@ -13,19 +13,19 @@ var app = http.createServer(function(request, response) {
 
 
     if(pathName === '/') {
-        fs.readdir('../data', (err, fileList) => {
+        fs.readdir('data', (err, fileList) => {
             var list = template.list(fileList);
             view.main(queryData.id, list, response, view.func);
         });
     } else if(pathName === '/create') {
-        fs.readdir('../data', (err, fileList) => {
+        fs.readdir('data', (err, fileList) => {
             var list = template.list(fileList);
             view.create(list, response, view.func);
         });
     } else if(pathName === '/create_process') {
         process.create(request, response, qs);
     } else if(pathName === '/update') {
-        fs.readdir('../data', (err, fileList) => {
+        fs.readdir('data', (err, fileList) => {
             var list = template.list(fileList);
             view.update(queryData.id, list, response, view.func);
         });
