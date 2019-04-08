@@ -35,5 +35,20 @@ module.exports = {
         var list = orderList + unorderList;
     
         return list;
+    },
+    selectAuthor:function(select, selected) {
+        var options = '';
+        for(var i = 0; i < select.length; ++i) {
+            var selectedTag = '';
+            if(selected === select[i].id)
+                selectedTag = 'selected';
+                
+            options = options + `<option value="${select[i].id}" ${selectedTag}>${select[i].name}</option>`
+        }
+
+        return `
+        <select name="author">
+            ${options}
+        </select>`
     }
 }
