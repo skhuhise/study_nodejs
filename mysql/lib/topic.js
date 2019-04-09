@@ -9,9 +9,11 @@ exports.home = (request, response) => {
 
         var title = 'Welcome';
         var description = 'Hello, firends!';
+        var body = `<h2>${title}</h1>${description}`
         var list = template.list(topics);
         var control = `<a href="/create">create</a>`
-        var html = template.html(title, list, `<h2>${title}</h1>${description}`, control);
+        var html = template.html(title, list, body, control);
+
         response.writeHead(200);
         response.end(html);
     })
@@ -20,25 +22,27 @@ exports.home = (request, response) => {
 exports.page = (request, response) => {
     var requestUrl = request.url;
     var queryData = url.parse(requestUrl, true).query;
+    var id = queryData.id;
     db.query(`select * from topic`, (topicsError, topics) => {
         if(topicsError) throw topicsError;
 
-        db.query(`select * from topic left join author on topic.author_id = author.id where topic.id = ?`, [queryData.id], (topicError, topic) => {
+        db.query(`select * from topic left join author on topic.author_id = author.id where topic.id = ?`, [id], (topicError, topic) => {
             if(topicError) throw topicError;
-
             var title = topic[0].title;
-            var description = topic[0].description;
-            var author = topic[0].name;
+            var topicDescription = topic[0].description;
+            var authorName = topic[0].name;
             var list = template.list(topics);
+            var body = `<h2>${title}</h2>${topicDescription} <p>by ${authorName}</p>`;
             var control = `
             <a href="/create">create</a>
-            <a href="/update?id=${queryData.id}">update</a>
+            <a href="/update?id=${id}">update</a>
             <form action="delete_process" method="post">
-                <input type="hidden" name="id" value=${queryData.id} />
+                <input type="hidden" name="id" value=${id} />
                 <input type="submit" value="delete" />
             <form>
             `
-            var html = template.html(title, list, `<h2>${title}</h2>${description} <p>by ${author}</p>`, control);
+            var html = template.html(title, list, body, control);
+
             response.writeHead(200);
             response.end(html);
         })
@@ -53,24 +57,24 @@ exports.create = (request, response) => {
             if(authorError) throw authorError;
             
             var title = 'Create';
-            var selectAuthors = template.selectAuthor(authors)
-
-            var description = `
+            var authorSelect = template.authorSelect(authors, 0);
+            var list = template.list(topics);
+            var body = `
             <form action="/create_process" method="post">
                 <p><input type="text" name="title" placeholder="title"></p>
                 <p>
                     <textarea name="description" placeholder="description"></textarea>
                 </p>
                 <p>
-                    ${selectAuthors}
+                    ${authorSelect}
                 </p>
                 <p>
-                    <input type="submit">
+                    <input type="submit" value="create">
                 </p>
             </form>`;
-            var list = template.list(topics);
             var control = '';
-            var html = template.html(title, list, description, control);
+            var html = template.html(title, list, body, control);
+
             response.writeHead(200);
             response.end(html);
         })
@@ -94,8 +98,9 @@ exports.createProcess = (request, response) => {
 
         db.query('insert into topic(title, description, created, author_id) values(?, ?, now(), ?)', [title, description, authorId], (error, result) => {
             if(error) throw error;
+            var id = result.insertId;
 
-            response.writeHead(302, {Location: `/?id=${result.insertId}`});
+            response.writeHead(302, {Location: `/?id=${id}`});
             response.end();
         })
     });
@@ -104,35 +109,41 @@ exports.createProcess = (request, response) => {
 exports.update = (request, response) => {
     var requestUrl = request.url;
     var queryData = url.parse(requestUrl, true).query;
+    var id = queryData.id;
 
     db.query('select * from topic', (topicsError, topics) => {
         if(topicsError) throw topicsError;
 
-        db.query(`select * from topic where id = ?`, [queryData.id], (topicError, topic) => {
+        db.query(`select * from topic where id = ?`, [id], (topicError, topic) => {
             if(topicError) throw topicError;
 
             db.query('select * from author', (authorError, authors) => {
                 if(authorError) throw authorError;
 
                 var title = 'Update';
-                var selectAuthors = template.selectAuthor(authors, topic[0].author_id)
-                var description = `
+                var topicId = topic[0].id;
+                var authorId = topic[0].author_id;
+                var topicTitle = topic[0].title;
+                var topicDescription = topic[0].description;
+                var authorSelect = template.authorSelect(authors, authorId)
+                var body = `
                 <form action="/update_process" method="post">
-                    <input type="hidden" name="id" value="${topic[0].id}" />
-                    <p><input type="text" name="title" placeholder="title" value="${topic[0].title}"></p>
+                    <input type="hidden" name="id" value="${topicId}" />
+                    <p><input type="text" name="title" placeholder="title" value="${topicTitle}"></p>
                     <p>
-                        <textarea name="description" placeholder="description">${topic[0].description}</textarea>
+                        <textarea name="description" placeholder="description">${topicDescription}</textarea>
                     </p>
                     <p>
-                        ${selectAuthors}
+                        ${authorSelect}
                     </p>
                     <p>
-                        <input type="submit">
+                        <input type="submit" value="update">
                     </p>
                 </form>`;
                 var list = template.list(topics);
                 var control = '';
-                var html = template.html(title, list, description, control);
+                var html = template.html(title, list, body, control);
+
                 response.writeHead(200);
                 response.end(html);
             })
@@ -177,7 +188,7 @@ exports.deleteProcess = (request, response) => {
     request.on('end', () => {
         var post = qs.parse(body);
         var id = post.id;
-
+        
         db.query('delete from topic where id = ?', [id], (error, result) => {
             if(error) throw error;
 
