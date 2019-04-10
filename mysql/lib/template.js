@@ -1,3 +1,5 @@
+var sanitizeHtml = require('sanitize-html');
+
 module.exports = {
     html:function(title, list, body, control) {
         return `
@@ -25,8 +27,8 @@ module.exports = {
         var i = 0;
     
         while(i < topics.length) {
-            orderList = orderList + `<li><a href="/?id=${topics[i].id}">${topics[i].title}</a></li>`;
-            unorderList = unorderList + `<li><a href="/?id=${topics[i].id}">${topics[i].title}</a></li>`;
+            orderList = orderList + `<li><a href="/?id=${topics[i].id}">${sanitizeHtml(topics[i].title)}</a></li>`;
+            unorderList = unorderList + `<li><a href="/?id=${topics[i].id}">${sanitizeHtml(topics[i].title)}</a></li>`;
             i++;
         }
     
@@ -44,7 +46,7 @@ module.exports = {
             if(selected === select[i].id)
                 selectedTag = 'selected';
                 
-            options = options + `<option value="${select[i].id}" ${selectedTag}>${select[i].name}</option>`
+            options = options + `<option value="${select[i].id}" ${selectedTag}>${sanitizeHtml(select[i].name)}</option>`
         }
 
         return `
@@ -57,8 +59,8 @@ module.exports = {
         for(var i = 0; i < authors.length; ++i) {
             tag += `
             <tr>
-                <td>${authors[i].name}</td>
-                <td>${authors[i].profile}</td>
+                <td>${sanitizeHtml(authors[i].name)}</td>
+                <td>${sanitizeHtml(authors[i].profile)}</td>
                 <td><a href="/author/update?id=${authors[i].id}">update</a></td>
                 <td>
                     <form action="/author/delete_process" method="post">

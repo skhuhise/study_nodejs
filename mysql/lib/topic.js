@@ -2,6 +2,7 @@ var template = require('./template');
 var db = require('../db/db');
 var url= require('url');
 var qs = require('querystring');
+var sanitizeHtml = require('sanitize-html');
 
 exports.home = (request, response) => {
     db.query('select * from topic', (error, topics) => {
@@ -32,7 +33,7 @@ exports.page = (request, response) => {
             var topicDescription = topic[0].description;
             var authorName = topic[0].name;
             var list = template.list(topics);
-            var body = `<h2>${title}</h2>${topicDescription} <p>by ${authorName}</p>`;
+            var body = `<h2>${sanitizeHtml(title)}</h2>${sanitizeHtml(topicDescription)} <p>by ${sanitizeHtml(authorName)}</p>`;
             var control = `
             <a href="/create">create</a>
             <a href="/update?id=${id}">update</a>
@@ -129,9 +130,9 @@ exports.update = (request, response) => {
                 var body = `
                 <form action="/update_process" method="post">
                     <input type="hidden" name="id" value="${topicId}" />
-                    <p><input type="text" name="title" placeholder="title" value="${topicTitle}"></p>
+                    <p><input type="text" name="title" placeholder="title" value="${sanitizeHtml(topicTitle)}"></p>
                     <p>
-                        <textarea name="description" placeholder="description">${topicDescription}</textarea>
+                        <textarea name="description" placeholder="description">${sanitizeHtml(topicDescription)}</textarea>
                     </p>
                     <p>
                         ${authorSelect}
