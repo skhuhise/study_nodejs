@@ -54,8 +54,7 @@ exports.createProcess = (req, res) => {
         db.query('insert into author(name, profile) values(?, ?)', [name, profile], (error, result) => {
             if(error) throw error;
             
-            res.writeHead(302, {Location: `/author`});
-            res.end();
+            res.redirect(302, `/author`);
         })
     });
 }
@@ -125,8 +124,7 @@ exports.updateProcess = (req, res) => {
         db.query('update author set name = ?, profile = ? where id = ?', [name, profile, id], (error, result) => {
             if(error) throw error;
 
-            res.writeHead(302, {Location: `/author`});
-            res.end();
+            res.redirect(302, `/author`);
         })
     });
 }
@@ -150,8 +148,7 @@ exports.deleteProcess = (req, res) => {
             db.query('delete from author where id = ?', [id], (error, result) => {
                 if(error) throw error;
     
-                res.writeHead(302, {Location: '/author'});
-                res.end();
+                res.redirect(302, '/author');
             })
         })
     });

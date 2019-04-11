@@ -95,8 +95,7 @@ exports.createProcess = (req, res) => {
             if(error) throw error;
             var id = result.insertId;
 
-            res.writeHead(302, {Location: `/page/${id}`});
-            res.end();
+            res.redirect(302, `/page/${id}`);
         })
     });
 }
@@ -164,8 +163,7 @@ exports.updateProcess = (req, res) => {
         db.query('update topic set title = ?, description = ?, author_id = ? where id = ?', [title, description, authorId, id], (error, result) => {
             if(error) throw error;
 
-            res.writeHead(302, {Location: `/page/${id}`});
-            res.end();
+            res.redirect(302, `/page/${id}`);
         })
     });
 }
@@ -186,8 +184,7 @@ exports.deleteProcess = (req, res) => {
         db.query('delete from topic where id = ?', [id], (error, result) => {
             if(error) throw error;
 
-            res.writeHead(302, {Location: '/'});
-            res.end();
+            res.redirect(302, '/');
         })
     });
 }
