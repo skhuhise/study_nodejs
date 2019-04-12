@@ -2,6 +2,22 @@ var topic = require('./lib/topic');
 var author = require('./lib/author');
 const express = require('express');
 const app = express();
+var bodyParser = require('body-parser');
+var compression = require('compression');
+var myWare = (req, res, next) => {
+    req.myWare = 'my middleware method';
+    next();
+}
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(compression());
+
+app.use((req, res, next) => {
+    req.myMiddle = 'my middleware';
+    next();
+}) // middleware 생성
+
+app.get('/page/:id', myWare);
 
 app.get('/', (req, res) => {
     topic.home(req, res);

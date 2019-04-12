@@ -38,25 +38,15 @@ exports.home = (req, res) => {
 }
 
 exports.createProcess = (req, res) => {
-    var body= '';
-    req.on('data', (data) => {
-        body = body + data;
-        // 너무 큰 데이터의 전송시 통신 끊음.
-        // if(body.length > 1e6)
-        //      request.connection.destroy();
-    });
+    var post = req.body;
+    var name = post.name;
+    var profile = post.profile;
 
-    req.on('end', () => {
-        var post = qs.parse(body);
-        var name = post.name;
-        var profile = post.profile;
-
-        db.query('insert into author(name, profile) values(?, ?)', [name, profile], (error, result) => {
-            if(error) throw error;
+    db.query('insert into author(name, profile) values(?, ?)', [name, profile], (error, result) => {
+        if(error) throw error;
             
-            res.redirect(302, `/author`);
-        })
-    });
+         res.redirect(302, `/author`);
+    })
 }
 
 exports.update = (req, res) => {
@@ -107,49 +97,29 @@ exports.update = (req, res) => {
 }
 
 exports.updateProcess = (req, res) => {
-    var body= '';
-    req.on('data', (data) => {
-        body = body + data;
-        // 너무 큰 데이터의 전송시 통신 끊음.
-        // if(body.length > 1e6)
-        //      request.connection.destroy();
-    });
+    var post = req.body;
+    var id = post.id;
+    var name = post.name;
+    var profile = post.profile;
 
-    req.on('end', () => {
-        var post = qs.parse(body);
-        var id = post.id;
-        var name = post.name;
-        var profile = post.profile;
+    db.query('update author set name = ?, profile = ? where id = ?', [name, profile, id], (error, result) => {
+        if(error) throw error;
 
-        db.query('update author set name = ?, profile = ? where id = ?', [name, profile, id], (error, result) => {
-            if(error) throw error;
-
-            res.redirect(302, `/author`);
-        })
-    });
+        res.redirect(302, `/author`);
+    })
 }
 
 exports.deleteProcess = (req, res) => {
-    var body= '';
-    req.on('data', (data) => {
-        body = body + data;
-        // 너무 큰 데이터의 전송시 통신 끊음.
-        // if(body.length > 1e6)
-        //      request.connection.destroy();
-    });
-
-    req.on('end', () => {
-        var post = qs.parse(body);
-        var id = post.id;
+    var post = req.body;
+    var id = post.id;
         
-        db.query('delete from topic where author_id = ?', [id], (error, result) => {
+    db.query('delete from topic where author_id = ?', [id], (error, result) => {
+        if(error) throw error;
+
+        db.query('delete from author where id = ?', [id], (error, result) => {
             if(error) throw error;
 
-            db.query('delete from author where id = ?', [id], (error, result) => {
-                if(error) throw error;
-    
-                res.redirect(302, '/author');
-            })
+            res.redirect(302, '/author');
         })
-    });
+    })
 }
