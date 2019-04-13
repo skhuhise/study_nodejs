@@ -1,17 +1,19 @@
 var template = require('./template');
 var db = require('../db/db');
-var qs = require('querystring');
 var sanitizeHtml = require('sanitize-html');
 
-exports.home = (req, res) => {
+exports.home = (req, res, next) => {
     console.log(req.myMiddle);
     console.log(req.myWare);
-    db.query('select * from topic', (error, topics) => {
-        if(error) throw error;
+    db.query('select * from topic', (topicsError, topics) => {
+        if(topicsError) return next(topicsError);
 
         var title = 'Welcome';
         var description = 'Hello, firends!';
-        var body = `<h2>${title}</h1>${description}`
+        var body = `
+        <h2>${title}</h1>${description}
+        <img src="/image/hello.jpg" style="width:250px; display:block; margin-top:10px;"/>
+        `
         var list = template.list(topics);
         var control = `<a href="/create">create</a>`
         var html = template.html(title, list, body, control);
@@ -20,15 +22,17 @@ exports.home = (req, res) => {
     })
 }
 
-exports.page = (req, res) => {
+exports.page = (req, res, next) => {
     console.log(req.myMiddle);
     console.log(req.myWare);
     var id = req.params.id;
     db.query(`select * from topic`, (topicsError, topics) => {
-        if(topicsError) throw topicsError;
+        if(topicsError) return next(topicsError);
 
         db.query(`select * from topic left join author on topic.author_id = author.id where topic.id = ?`, [id], (topicError, topic) => {
-            if(topicError) throw topicError;
+            if(topicError) return next(topicError);
+            if(topic[0] === undefined) return next('route');
+            
             var title = topic[0].title;
             var topicDescription = topic[0].description;
             var authorName = topic[0].name;
@@ -49,12 +53,12 @@ exports.page = (req, res) => {
     })
 }
 
-exports.create = (req, res) => {
-    db.query('select * from topic', (topicError, topics) => {
-        if(topicError) throw topicError;
+exports.create = (req, res, next) => {
+    db.query('select * from topic', (topicsError, topics) => {
+        if(topicsError) return next(topicsError);
         
-        db.query('select * from author', (authorError, authors) => {
-            if(authorError) throw authorError;
+        db.query('select * from author', (authorsError, authors) => {
+            if(authorsError) return next(authorsError);
             
             var title = 'Create';
             var authorSelect = template.authorSelect(authors, 0);
@@ -80,31 +84,32 @@ exports.create = (req, res) => {
     })
 }
 
-exports.createProcess = (req, res) => {
+exports.createProcess = (req, res, next) => {
     var post = req.body;
     var title = post.title;
     var authorId = post.author;
     var description = post.description;
 
     db.query('insert into topic(title, description, created, author_id) values(?, ?, now(), ?)', [title, description, authorId], (error, result) => {
-        if(error) throw error;
-        var id = result.insertId;
+        if(error) return next(error);
 
+        var id = result.insertId;
         res.redirect(302, `/page/${id}`);
     })
 }
 
-exports.update = (req, res) => {
+exports.update = (req, res, next) => {
     var id = req.params.id;
 
     db.query('select * from topic', (topicsError, topics) => {
-        if(topicsError) throw topicsError;
+        if(topicsError) return next(topicsError);
 
         db.query(`select * from topic where id = ?`, [id], (topicError, topic) => {
-            if(topicError) throw topicError;
+            if(topicError) return next(topicError);
+            if(topic[0] === undefined) return next('route');
 
-            db.query('select * from author', (authorError, authors) => {
-                if(authorError) throw authorError;
+            db.query('select * from author', (authorsError, authors) => {
+                if(authorsError) return next(authorError);
 
                 var title = 'Update';
                 var topicId = topic[0].id;
@@ -137,7 +142,7 @@ exports.update = (req, res) => {
     })
 }
 
-exports.updateProcess = (req, res) => {
+exports.updateProcess = (req, res, next) => {
     var post = req.body;
     var id = post.id;
     var title = post.title;
@@ -145,18 +150,18 @@ exports.updateProcess = (req, res) => {
     var description = post.description;
 
     db.query('update topic set title = ?, description = ?, author_id = ? where id = ?', [title, description, authorId, id], (error, result) => {
-        if(error) throw error;
+        if(error) return next(error);
 
         res.redirect(302, `/page/${id}`);
     })
 }
 
-exports.deleteProcess = (req, res) => {
+exports.deleteProcess = (req, res, next) => {
     var post = req.body;
     var id = post.id;
         
     db.query('delete from topic where id = ?', [id], (error, result) => {
-        if(error) throw error;
+        if(error) return next(error);
 
         res.redirect(302, '/');
     })
