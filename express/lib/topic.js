@@ -15,7 +15,7 @@ exports.home = (req, res, next) => {
         <img src="/image/hello.jpg" style="width:250px; display:block; margin-top:10px;"/>
         `
         var list = template.list(topics);
-        var control = `<a href="/create">create</a>`
+        var control = `<a href="/topic/form">create</a>`
         var html = template.html(title, list, body, control);
 
         res.send(html);
@@ -39,9 +39,9 @@ exports.page = (req, res, next) => {
             var list = template.list(topics);
             var body = `<h2>${sanitizeHtml(title)}</h2>${sanitizeHtml(topicDescription)} <p>by ${sanitizeHtml(authorName)}</p>`;
             var control = `
-            <a href="/create">create</a>
-            <a href="/update/${id}">update</a>
-            <form action="../delete" method="post">
+            <a href="/topic/form">create</a>
+            <a href="/topic/update/${id}">update</a>
+            <form action="/topic/delete" method="post">
                 <input type="hidden" name="id" value=${id} />
                 <input type="submit" value="delete" />
             <form>
@@ -64,7 +64,7 @@ exports.create = (req, res, next) => {
             var authorSelect = template.authorSelect(authors, 0);
             var list = template.list(topics);
             var body = `
-            <form action="/create" method="post">
+            <form action="/topic/create" method="post">
                 <p><input type="text" name="title" placeholder="title"></p>
                 <p>
                     <textarea name="description" placeholder="description"></textarea>
@@ -94,7 +94,7 @@ exports.createProcess = (req, res, next) => {
         if(error) return next(error);
 
         var id = result.insertId;
-        res.redirect(302, `/page/${id}`);
+        res.redirect(302, `/topic/${id}`);
     })
 }
 
@@ -118,7 +118,7 @@ exports.update = (req, res, next) => {
                 var topicDescription = topic[0].description;
                 var authorSelect = template.authorSelect(authors, authorId)
                 var body = `
-                <form action="/update" method="post">
+                <form action="/topic/update" method="post">
                     <input type="hidden" name="id" value="${topicId}" />
                     <p><input type="text" name="title" placeholder="title" value="${sanitizeHtml(topicTitle)}"></p>
                     <p>
@@ -152,7 +152,7 @@ exports.updateProcess = (req, res, next) => {
     db.query('update topic set title = ?, description = ?, author_id = ? where id = ?', [title, description, authorId, id], (error, result) => {
         if(error) return next(error);
 
-        res.redirect(302, `/page/${id}`);
+        res.redirect(302, `/topic/${id}`);
     })
 }
 

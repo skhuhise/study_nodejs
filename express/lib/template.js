@@ -27,8 +27,8 @@ module.exports = {
         var i = 0;
     
         while(i < topics.length) {
-            orderList = orderList + `<li><a href="/page/${topics[i].id}">${sanitizeHtml(topics[i].title)}</a></li>`;
-            unorderList = unorderList + `<li><a href="/page/${topics[i].id}">${sanitizeHtml(topics[i].title)}</a></li>`;
+            orderList = orderList + `<li><a href="/topic/${topics[i].id}">${sanitizeHtml(topics[i].title)}</a></li>`;
+            unorderList = unorderList + `<li><a href="/topic/${topics[i].id}">${sanitizeHtml(topics[i].title)}</a></li>`;
             i++;
         }
     
