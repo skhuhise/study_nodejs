@@ -1,30 +1,40 @@
 const express = require('express');
 const app = express();
-var cookie = require('cookie');
+var cookieParser = require('cookie-parser');
+
+app.use(cookieParser());
 
 app.get('/', (req, res) => {
-    console.log(req.headers.cookie);
+    console.log(req.cookies);
     var cookies = {};
-    if(req.headers.cookie !== undefined) {
-        cookies = cookie.parse(req.headers.cookie);
+    if(req.cookies !== undefined) {
+        cookies = req.cookies;
     }
 
     console.log(cookies);
 
     console.log(cookies.myCookie);
 
-    res.writeHead(200, {
-        'Set-Cookie': [
-            'myCookie=test', 
-            'yourCookie=practice',
-            `Permanent=PermanentValue; Max-Age=${60*60*24*30}`,
-            'Secure=SecureValue; Secure',
-            'HttpOnly=HttpOnlyValue; HttpOnly',
-            'Path=PathValue; Path=/cookie',
-            'Domain=DomainValue; Domain=test.o2.org'
-        ]
+    res.cookie('myCookie', 'cookie1');
+    res.cookie('yourCookie', 'cookie2');
+    res.cookie('permanentCookie', 'cookie3', {
+        maxAge : 10000
     });
-    res.end('cookie');
+    res.cookie('secureCookie', 'cookie4', {
+        secure : true
+    })
+    res.cookie('httpCookie', 'cookie5', {
+        httpOnly : true
+    });
+    res.cookie('pathCookie', 'cookie6', {
+        path : '/',
+        secure : false
+    })
+    res.cookie('domainCookie', 'cookie7', {
+        domain : 'mydomain'
+    })
+
+    res.send('cookie');
 }).listen(3000, () => {
     console.log('server start');
 })
