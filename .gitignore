@@ -1,3 +1,5 @@
 mysql/db/db.js
 express/db/db.js
 session/db/connector.js
+routes/session.js
+routes/private/*

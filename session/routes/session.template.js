@@ -3,15 +3,14 @@ const router = express.Router();
 var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
 var connector = require('../db/connector');
-var sessionkey = require('../private/key/sessionkey');
 
 var sessionStore = new MySQLStore(connector);
 
 router.use(session({
-    secret : sessionkey,
+    secret : '',
+    store : sessionStore,
     resave : false,
-    saveUninitialized : false,
-    store : sessionStore
+    saveUninitialized : true
 }))
 
 module.exports = router;

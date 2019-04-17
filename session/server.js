@@ -3,7 +3,7 @@ const app = express();
 var helmet = require('helmet');
 var bodyParser = require('body-parser');
 var compression = require('compression');
-var session = require('express-session');
+var sessionRouter = require('./routes/session');
 var indexRouter = require('./routes/index');
 var authRouter = require('./routes/auth');
 var topicRouter = require('./routes/topic');
@@ -14,11 +14,7 @@ app.use(helmet());
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(compression());
-app.use(session({
-    secret : 'iw!3W1#23!DsTzloI&erjr',
-    resave : false,
-    saveUninitialized : true
-}))
+app.use(sessionRouter);
 
 app.use((req, res, next) => {
     req.myMiddle = 'my middleware';

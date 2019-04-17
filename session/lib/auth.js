@@ -46,13 +46,19 @@ exports.loginProcess = (req, res, next) => {
     if(email === root.email&& password === root.password) {
         req.session.email = email;
         req.session.nickname = root.nickname;
+        req.session.save(() => {
+            res.redirect('/');
+        })
     }
 
-    res.redirect('/');
+    else {
+        res.redirect('/');
+    }
 }
 
 exports.logout = (req, res, next) => {
     req.session.destroy((err) => {
+        req.session;
         res.redirect('/');
     })
 }
