@@ -1,10 +1,9 @@
 var template = require('./template');
 var db = require('../db/db');
 var sanitizeHtml = require('sanitize-html');
+var auth = require('./auth');
 
 exports.home = (req, res, next) => {
-    console.log(req.myMiddle);
-    console.log(req.myWare);
     db.query('select * from topic', (topicsError, topics) => {
         if(topicsError) return next(topicsError);
 
@@ -15,12 +14,11 @@ exports.home = (req, res, next) => {
         <img src="/image/hello.jpg" style="width:250px; display:block; margin-top:10px;"/>
         `
         var list = template.list(topics);
-        var session = req.session.email;
-        var isLogin = (session === undefined ? false : true);
+        var isLogin = auth.isLogin(req, res, next);
         var login = template.login(isLogin);
         var control = '';
         
-        if(session === 'root')
+        if(isLogin)
             var control = `<a href="/topic/form">create</a>`;
 
         var html = template.html(title, list, body, control, login);
@@ -30,8 +28,6 @@ exports.home = (req, res, next) => {
 }
 
 exports.page = (req, res, next) => {
-    console.log(req.myMiddle);
-    console.log(req.myWare);
     var id = req.params.id;
     db.query(`select * from topic`, (topicsError, topics) => {
         if(topicsError) return next(topicsError);
@@ -45,12 +41,11 @@ exports.page = (req, res, next) => {
             var authorName = topic[0].name;
             var list = template.list(topics);
             var body = `<h2>${sanitizeHtml(title)}</h2>${sanitizeHtml(topicDescription)} <p>by ${sanitizeHtml(authorName)}</p>`;
-            var session = req.session.email;
-            var isLogin = session === undefined ? false : true;
+            var isLogin = auth.isLogin(req, res, next);
             var login = template.login(isLogin);
             var control = '';
 
-            if(session === 'root')
+            if(isLogin)
                 var control = `
                     <a href="/topic/form">create</a>
                     <a href="/topic/update/${id}">update</a>
@@ -68,7 +63,8 @@ exports.page = (req, res, next) => {
 }
 
 exports.create = (req, res, next) => {
-    if(req.session.email !== 'root') {
+    var isLogin = auth.isLogin(req, res, next);
+    if(!isLogin) {
         res.redirect('/');
         return false;
     }
@@ -108,7 +104,8 @@ exports.create = (req, res, next) => {
 }
 
 exports.createProcess = (req, res, next) => {
-    if(req.session.email !== 'root') {
+    var isLogin = auth.isLogin(req, res, next);
+    if(!isLogin) {
         res.redirect('/');
         return false;
     }
@@ -126,7 +123,8 @@ exports.createProcess = (req, res, next) => {
 }
 
 exports.update = (req, res, next) => {
-    if(req.session.email !== 'root') {
+    var isLogin = auth.isLogin(req, res, next);
+    if(!isLogin) {
         res.redirect('/');
         return false;
     }
@@ -178,7 +176,8 @@ exports.update = (req, res, next) => {
 }
 
 exports.updateProcess = (req, res, next) => {
-    if(req.session.email !== 'root') {
+    var isLogin = auth.isLogin(req, res, next);
+    if(!isLogin) {
         res.redirect('/');
         return false;
     }
@@ -196,7 +195,8 @@ exports.updateProcess = (req, res, next) => {
 }
 
 exports.deleteProcess = (req, res, next) => {
-    if(req.session.email !== 'root') {
+    var isLogin = auth.isLogin(req, res, next);
+    if(!isLogin) {
         res.redirect('/');
         return false;
     }

@@ -4,6 +4,7 @@ var helmet = require('helmet');
 var bodyParser = require('body-parser');
 var compression = require('compression');
 var sessionRouter = require('./routes/session');
+var passportRouter = require('./routes/passport');
 var indexRouter = require('./routes/index');
 var authRouter = require('./routes/auth');
 var topicRouter = require('./routes/topic');
@@ -15,11 +16,7 @@ app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(compression());
 app.use(sessionRouter);
-
-app.use((req, res, next) => {
-    req.myMiddle = 'my middleware';
-    next();
-}) // middleware 생성
+app.use(passportRouter);
 
 app.use('/', indexRouter);
 app.use('/topic', topicRouter);

@@ -1,6 +1,7 @@
 var db = require('../db/db');
 var template = require('./template');
 var sanitizeHtml = require('sanitize-html');
+var auth = require('./auth');
 
 exports.home = (req, res, next) => {
     db.query(`select * from topic`, (topicsError, topics) => {
@@ -11,14 +12,13 @@ exports.home = (req, res, next) => {
 
             var title = 'Author';
             var list = template.list(topics);
-            var session = req.session.email;
-            var isLogin = session === undefined ? false : true;
+            var isLogin = auth.isLogin(req, res, next);
             var login = template.login(isLogin);
             var authorTable = template.authorTable(authors, isLogin);
             var control = '';
             var create = '';
 
-            if(session === 'root') {
+            if(isLogin) {
                 create = `
                 <form action="/author/create" method="post">
                     <p><input type="text" name="name" placeholder="name"></p>
@@ -50,7 +50,8 @@ exports.home = (req, res, next) => {
 }
 
 exports.createProcess = (req, res, next) => {
-    if(req.session.email !== 'root') {
+    var isLogin = auth.isLogin(req, res, next);
+    if(!isLogin) {
         res.redirect('/');
         return false;
     }
@@ -66,7 +67,8 @@ exports.createProcess = (req, res, next) => {
 }
 
 exports.update = (req, res, next) => {
-    if(req.session.email !== 'root') {
+    var isLogin = auth.isLogin(req, res, next);
+    if(!isLogin) {
         res.redirect('/');
         return false;
     }
@@ -87,14 +89,12 @@ exports.update = (req, res, next) => {
                     var authorName = author[0].name
                     var authorProfile = author[0].profile;
                     var list = template.list(topics);
-                    var session = req.session.email;
-                    var isLogin = session === undefined ? false : true;
                     var login = template.login(isLogin);
                     var authorTable = template.authorTable(authors, isLogin);
                     var control = '';
                     var create = '';
 
-                    if(session === 'root') {
+                    if(isLogin) {
                         create = `
                         <form action="/author/create" method="post">
                             <p><input type="text" name="name" placeholder="name"></p>
@@ -115,7 +115,6 @@ exports.update = (req, res, next) => {
                             border:1px solid black;
                         }
                     </style>
-                    ${create}
                     <form action="/author/update" method="post">
                         <input type="hidden" name="id" value="${authorId}" />
                         <p><input type="text" name="name" placeholder="name" value="${sanitizeHtml(authorName)}"></p>
@@ -138,7 +137,8 @@ exports.update = (req, res, next) => {
 }
 
 exports.updateProcess = (req, res, next) => {
-    if(req.session.email !== 'root') {
+    var isLogin = auth.isLogin(req, res, next);
+    if(!isLogin) {
         res.redirect('/');
         return false;
     }
@@ -155,7 +155,8 @@ exports.updateProcess = (req, res, next) => {
 }
 
 exports.deleteProcess = (req, res, next) => {
-    if(req.session.email !== 'root') {
+    var isLogin = auth.isLogin(req, res, next);
+    if(!isLogin) {
         res.redirect('/');
         return false;
     }

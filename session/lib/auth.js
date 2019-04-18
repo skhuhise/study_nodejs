@@ -1,5 +1,6 @@
 var template = require('./template');
 var db = require('../db/db');
+var LocalStrategy = require('passport-local').Strategy;
 
 var root = {
     email : 'root',
@@ -8,6 +9,10 @@ var root = {
 }
 
 exports.login = (req, res, next) => {
+    if(req.user) {
+        res.redirect('/');
+        return false;
+    }
     db.query('select * from topic', (topicsError, topics) => {
         if(topicsError) return next(topicsError);
 
@@ -19,18 +24,7 @@ exports.login = (req, res, next) => {
             <p><input type="submit" value="create" /></p>
         </form>`;
         var control = '';
-        var session = req.session.email;
         var login = '';
-        if(session !== undefined) {
-            login = `
-            <form action="/auth/logout" method="post">
-                <input type="submit" value="logout" />
-            </form>`
-        }
-        
-        else {
-            login = '<a href="/auth/login">login</a>';
-        }
         var list = template.list(topics);
         var html = template.html(title, list, body, control, login);
 
@@ -38,27 +32,35 @@ exports.login = (req, res, next) => {
     })
 }
 
-exports.loginProcess = (req, res, next) => {
-    var post = req.body;
-    var email = post.email;
-    var password = post.password;
+exports.loginProcess = new LocalStrategy(
+    {
+        usernameField : 'email'
+    },
+    (username, password, done) => {
+        if(username === root.email && password === root.password) {
+            console.log('?');
+            return done(null, root);
+        } else {
+            console.log('tt');
+            return done(null, false, {
+                message: 'Incorrect login'
+            })
+        }
+})
 
-    if(email === root.email&& password === root.password) {
-        req.session.email = email;
-        req.session.nickname = root.nickname;
-        req.session.save(() => {
-            res.redirect('/');
-        })
+exports.logout = (req, res, next) => {
+    req.logout();
+    req.session.save(function(){
+        res.redirect('/');
+    });
+}
+
+exports.isLogin = (req, res, next) => {
+    if(req.user) {
+        return true;
     }
 
     else {
-        res.redirect('/');
+        return false;
     }
-}
-
-exports.logout = (req, res, next) => {
-    req.session.destroy((err) => {
-        req.session;
-        res.redirect('/');
-    })
 }
