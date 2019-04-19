@@ -1,23 +1,22 @@
 var template = require('./template');
 var db = require('../db/db');
-var LocalStrategy = require('passport-local').Strategy;
-
-var root = {
-    email : 'root',
-    password : '123',
-    nickname : 'root'
-}
 
 exports.login = (req, res, next) => {
     if(req.user) {
         res.redirect('/');
         return false;
     }
+    var flashMessage = req.flash();
+    var feedback = '';
+    if(flashMessage.error) {
+        feedback = flashMessage.error[0];
+    }
     db.query('select * from topic', (topicsError, topics) => {
         if(topicsError) return next(topicsError);
 
         var title = 'Login';
         var body = `
+        <div style="color : red">${feedback}</div>
         <form action="/auth/login" method="post">
             <p><input type="text" name="email" placeholder="email"></p>
             <p><input type="password" name="password" placeholder="password"></p>
@@ -31,22 +30,6 @@ exports.login = (req, res, next) => {
         res.send(html);
     })
 }
-
-exports.loginProcess = new LocalStrategy(
-    {
-        usernameField : 'email'
-    },
-    (username, password, done) => {
-        if(username === root.email && password === root.password) {
-            console.log('?');
-            return done(null, root);
-        } else {
-            console.log('tt');
-            return done(null, false, {
-                message: 'Incorrect login'
-            })
-        }
-})
 
 exports.logout = (req, res, next) => {
     req.logout();

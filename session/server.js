@@ -3,20 +3,23 @@ const app = express();
 var helmet = require('helmet');
 var bodyParser = require('body-parser');
 var compression = require('compression');
+var flash = require('connect-flash');
 var sessionRouter = require('./routes/session');
-var passportRouter = require('./routes/passport');
-var indexRouter = require('./routes/index');
-var authRouter = require('./routes/auth');
-var topicRouter = require('./routes/topic');
-var authorRouter = require('./routes/author');
-var errorRouter = require('./routes/error');
 
 app.use(helmet());
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(compression());
 app.use(sessionRouter);
-app.use(passportRouter);
+app.use(flash());
+
+var indexRouter = require('./routes/index');
+var authorRouter = require('./routes/author');
+var topicRouter = require('./routes/topic');
+var errorRouter = require('./routes/error');
+var passport = require('./lib/passport')(app);
+var authRouter = require('./routes/auth')(passport);
+
 
 app.use('/', indexRouter);
 app.use('/topic', topicRouter);

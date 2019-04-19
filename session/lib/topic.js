@@ -4,12 +4,19 @@ var sanitizeHtml = require('sanitize-html');
 var auth = require('./auth');
 
 exports.home = (req, res, next) => {
+    var flashMessage = req.flash();
+    var feedback = '';
+    if(flashMessage.success) {
+        feedback = flashMessage.success[0];
+    }
+
     db.query('select * from topic', (topicsError, topics) => {
         if(topicsError) return next(topicsError);
 
         var title = 'Welcome';
         var description = 'Hello, firends!';
         var body = `
+        <div style="color : red">${feedback}</div>
         <h2>${title}</h1>${description}
         <img src="/image/hello.jpg" style="width:250px; display:block; margin-top:10px;"/>
         `
