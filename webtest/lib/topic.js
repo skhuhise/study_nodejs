@@ -36,18 +36,19 @@ exports.home = (req, res, next) => {
 
 exports.page = (req, res, next) => {
     var id = req.params.id;
+
     db.query(`select * from topic`, (topicsError, topics) => {
         if(topicsError) return next(topicsError);
 
-        db.query(`select * from topic left join author on topic.author_id = author.id where topic.id = ?`, [id], (topicError, topic) => {
+        db.query(`select * from topic left join author on topic.authorId = author.id where topic.id = ?`, [id], (topicError, topic) => {
             if(topicError) return next(topicError);
             if(topic[0] === undefined) return next('route');
             
-            var title = topic[0].title;
-            var topicDescription = topic[0].description;
-            var authorName = topic[0].name;
+            console.log(topic[0].id);
+
+            var topicModel = require('../model/topic')(topic[0]);
             var list = template.list(topics);
-            var body = `<h2>${sanitizeHtml(title)}</h2>${sanitizeHtml(topicDescription)} <p>by ${sanitizeHtml(authorName)}</p>`;
+            var body = `<h2>${sanitizeHtml(topicModel.title)}</h2>${sanitizeHtml(topicModel.description)} <p>by ${sanitizeHtml(topicModel.authorName)}</p>`;
             var isLogin = auth.isLogin(req, res, next);
             var login = template.login(isLogin);
             var control = '';
@@ -62,7 +63,7 @@ exports.page = (req, res, next) => {
                     <form>
                     `;
 
-            var html = template.html(title, list, body, control, login);
+            var html = template.html(topicModel.title, list, body, control, login);
 
             res.send(html);
         })
@@ -70,11 +71,6 @@ exports.page = (req, res, next) => {
 }
 
 exports.create = (req, res, next) => {
-    var isLogin = auth.isLogin(req, res, next);
-    if(!isLogin) {
-        res.redirect('/');
-        return false;
-    }
     db.query('select * from topic', (topicsError, topics) => {
         if(topicsError) return next(topicsError);
         
@@ -105,6 +101,7 @@ exports.create = (req, res, next) => {
 
             var html = template.html(title, list, body, control, login);
 
+            console.log(authorSelect);
             res.send(html);
         })
     })
@@ -116,12 +113,10 @@ exports.createProcess = (req, res, next) => {
         res.redirect('/');
         return false;
     }
-    var post = req.body;
-    var title = post.title;
-    var authorId = post.author;
-    var description = post.description;
+    var topic = require('../model/topic')(req.body);
+    console.log('authorId' + topic.authorId)
 
-    db.query('insert into topic(title, description, created, author_id) values(?, ?, now(), ?)', [title, description, authorId], (error, result) => {
+    db.query('insert into topic(title, description, created, authorId) values(?, ?, now(), ?)', [topic.title, topic.description, topic.authorId], (error, result) => {
         if(error) return next(error);
 
         var id = result.insertId;
@@ -148,17 +143,14 @@ exports.update = (req, res, next) => {
                 if(authorsError) return next(authorError);
 
                 var title = 'Update';
-                var topicId = topic[0].id;
-                var authorId = topic[0].author_id;
-                var topicTitle = topic[0].title;
-                var topicDescription = topic[0].description;
-                var authorSelect = template.authorSelect(authors, authorId)
+                var topicModel = require('../model/topic')(topic[0]);
+                var authorSelect = template.authorSelect(authors, topicModel.authorId)
                 var body = `
                 <form action="/topic/update" method="post">
-                    <input type="hidden" name="id" value="${topicId}" />
-                    <p><input type="text" name="title" placeholder="title" value="${sanitizeHtml(topicTitle)}"></p>
+                    <input type="hidden" name="id" value="${topicModel.id}" />
+                    <p><input type="text" name="title" placeholder="title" value="${sanitizeHtml(topicModel.title)}"></p>
                     <p>
-                        <textarea name="description" placeholder="description">${sanitizeHtml(topicDescription)}</textarea>
+                        <textarea name="description" placeholder="description">${sanitizeHtml(topicModel.description)}</textarea>
                     </p>
                     <p>
                         ${authorSelect}
@@ -188,16 +180,13 @@ exports.updateProcess = (req, res, next) => {
         res.redirect('/');
         return false;
     }
-    var post = req.body;
-    var id = post.id;
-    var title = post.title;
-    var authorId = post.author;
-    var description = post.description;
 
-    db.query('update topic set title = ?, description = ?, author_id = ? where id = ?', [title, description, authorId, id], (error, result) => {
+    var topic = require('../model/topic')(req.body);
+
+    db.query('update topic set title = ?, description = ?, authorId = ? where id = ?', [topic.title, topic.description, topic.authorId, topic.id], (error, result) => {
         if(error) return next(error);
 
-        res.redirect(`/topic/${id}`);
+        res.redirect(`/topic/${topic.id}`);
     })
 }
 

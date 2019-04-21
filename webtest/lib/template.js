@@ -62,7 +62,7 @@ module.exports = {
         }
 
         return `
-        <select name="author">
+        <select name="authorId">
             ${options}
         </select>`
     },

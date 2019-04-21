@@ -68,20 +68,9 @@ exports.registProcess = (req, res, next) => {
         res.redirect('/');
         return false;
     }
-    var post = req.body;
-    var email = post.email;
-    var password = post.password;
-    var passwordValid = post.passwordValid;
-    var nickname = post.nickname;
+    var account = require('../model/account')(req);
 
-
-    if(password !== passwordValid) {
-        console.log('asd');
-        res.redirect('/auth/regist')
-        return false;
-    }
-
-    db.query('insert into account(email, password, nickname) values(?, ?, ?)', [email, password, nickname], (error, result) => {
+    db.query('insert into account(email, password, nickname) values(?, ?, ?)', [account.email, account.password, account.nickname], (error, result) => {
         if(error) return next(error);
 
         console.log('??');

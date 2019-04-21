@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 var auth = require('../lib/auth');
+const { check, validationResult } = require('express-validator/check');
 
 module.exports = (passport) => {
     router.get('/login', (req, res, next) => {
@@ -22,7 +23,17 @@ module.exports = (passport) => {
         auth.regist(req, res, next);
     })
 
-    router.post('/regist', (req, res, next) => {
+    router.post('/regist', [
+        check('email').isEmail(),
+        check('password').exists(),
+        check('passwordValid').exists().custom((passwordValid, { req }) => {passwordValid === req.body.password}),
+        check('nickname').exists()
+    ], (req, res, next) => {
+        const error = validationResult(req);
+        if(!error.isEmpty()) {
+            res.redirect('/')
+            return false;
+        }
         auth.registProcess(req, res, next);
     })
 
