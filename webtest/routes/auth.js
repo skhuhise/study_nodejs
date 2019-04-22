@@ -24,10 +24,10 @@ module.exports = (passport) => {
     })
 
     router.post('/regist', [
-        check('email').isEmail(),
-        check('password').exists(),
-        check('passwordValid').exists().custom((passwordValid, { req }) => {passwordValid === req.body.password}),
-        check('nickname').exists()
+        check('email').isEmail().isLength( { max : 50, min : 5 } ),
+        check('password').isLength( { max : 20, min : 4 } ),
+        check('passwordValid').exists().custom((value, { req }) => value === req.body.password),
+        check('nickname').isLength( { max : 15, min : 1 } )
     ], (req, res, next) => {
         const error = validationResult(req);
         if(!error.isEmpty()) {

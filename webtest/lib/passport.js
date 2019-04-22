@@ -24,7 +24,6 @@ module.exports = (app) => {
                 if(accountError) return done(null, false, { message: 'DB ERROR'});
                 if(account[0] === undefined) return done(null, false, { message : 'Incorrect login'});
 
-                console.log('correct');
                 return done(null, account[0], {
                     message : 'Welcome'
                 })

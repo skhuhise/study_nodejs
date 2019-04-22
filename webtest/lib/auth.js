@@ -51,7 +51,7 @@ exports.regist = (req, res, next) => {
             <p><input type="text" name="email" placeholder="email"></p>
             <p><input type="password" name="password" placeholder="password"></p>
             <p><input type="password" name="passwordValid" placeholder="password"></p>
-            <p><input type="nickname" name="nickname" placeholder="nickname"></p>
+            <p><input type="text" name="nickname" placeholder="nickname"></p>
             <p><input type="submit" value="create" /></p>
         </form>`;
         var control = '';
@@ -68,12 +68,11 @@ exports.registProcess = (req, res, next) => {
         res.redirect('/');
         return false;
     }
-    var account = require('../model/account')(req);
+    var account = require('../model/account')(req.body);
 
     db.query('insert into account(email, password, nickname) values(?, ?, ?)', [account.email, account.password, account.nickname], (error, result) => {
         if(error) return next(error);
 
-        console.log('??');
         res.redirect(`/`);
      })
 }

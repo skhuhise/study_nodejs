@@ -12,9 +12,9 @@ router.get('/form', (req, res, next) => {
 })
 
 router.post('/create', [
-    check('title').isLength({ max : 20}),
+    check('title').isLength({ max : 20, min : 1 }),
     check('description').exists(),
-    check('authorId').exists()
+    check('authorId').isNumeric()
 ], (req, res, next) => {
     const error = validationResult(req);
     if(!error.isEmpty()) {
@@ -30,9 +30,9 @@ router.get('/update/:id', (req, res, next) => {
 
 router.post('/update', [
     check('id').isNumeric(),
-    check('title').isLength({ max : 20}),
+    check('title').isLength({ max : 20, min : 1}),
     check('description').exists(),
-    check('authorId').exists()
+    check('authorId').isNumeric()
 ], (req, res, next) => {
     const error = validationResult(req);
     if(!error.isEmpty()) {

@@ -43,8 +43,6 @@ exports.page = (req, res, next) => {
         db.query(`select * from topic left join author on topic.authorId = author.id where topic.id = ?`, [id], (topicError, topic) => {
             if(topicError) return next(topicError);
             if(topic[0] === undefined) return next('route');
-            
-            console.log(topic[0].id);
 
             var topicModel = require('../model/topic')(topic[0]);
             var list = template.list(topics);
@@ -101,7 +99,6 @@ exports.create = (req, res, next) => {
 
             var html = template.html(title, list, body, control, login);
 
-            console.log(authorSelect);
             res.send(html);
         })
     })
@@ -114,7 +111,6 @@ exports.createProcess = (req, res, next) => {
         return false;
     }
     var topic = require('../model/topic')(req.body);
-    console.log('authorId' + topic.authorId)
 
     db.query('insert into topic(title, description, created, authorId) values(?, ?, now(), ?)', [topic.title, topic.description, topic.authorId], (error, result) => {
         if(error) return next(error);

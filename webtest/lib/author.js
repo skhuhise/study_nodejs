@@ -55,11 +55,9 @@ exports.createProcess = (req, res, next) => {
         res.redirect('/');
         return false;
     }
-    var post = req.body;
-    var name = post.name;
-    var profile = post.profile;
+    var author = require('../model/author')(req.body);
 
-    db.query('insert into author(name, profile) values(?, ?)', [name, profile], (error, result) => {
+    db.query('insert into author(name, profile) values(?, ?)', [author.name, author.profile], (error, result) => {
         if(error) return next(error);
             
         res.redirect(`/author`);
@@ -85,25 +83,11 @@ exports.update = (req, res, next) => {
                     if(author[0] === undefined) return next('route');
 
                     var title = 'Author';
-                    var authorId = author[0].id;
-                    var authorName = author[0].name
-                    var authorProfile = author[0].profile;
+                    var authorModel = require('../model/author')(author[0]);
                     var list = template.list(topics);
                     var login = template.login(isLogin);
                     var authorTable = template.authorTable(authors, isLogin);
                     var control = '';
-                    var create = '';
-
-                    if(isLogin) {
-                        create = `
-                        <form action="/author/create" method="post">
-                            <p><input type="text" name="name" placeholder="name"></p>
-                            <p>
-                                <textarea name="profile" placeholder="profile"></textarea>
-                            </p>
-                            <input type="submit" value="create" />
-                        </form>`
-                    }
 
                     var body = `
                     ${authorTable}
@@ -116,10 +100,10 @@ exports.update = (req, res, next) => {
                         }
                     </style>
                     <form action="/author/update" method="post">
-                        <input type="hidden" name="id" value="${authorId}" />
-                        <p><input type="text" name="name" placeholder="name" value="${sanitizeHtml(authorName)}"></p>
+                        <input type="hidden" name="id" value="${authorModel.id}" />
+                        <p><input type="text" name="name" placeholder="name" value="${sanitizeHtml(authorModel.name)}"></p>
                         <p>
-                            <textarea name="profile" placeholder="profile">${sanitizeHtml(authorProfile)}</textarea>
+                            <textarea name="profile" placeholder="profile">${sanitizeHtml(authorModel.profile)}</textarea>
                         </p>
                         <p>
                             <input type="submit" value="update">
@@ -142,12 +126,10 @@ exports.updateProcess = (req, res, next) => {
         res.redirect('/');
         return false;
     }
-    var post = req.body;
-    var id = post.id;
-    var name = post.name;
-    var profile = post.profile;
 
-    db.query('update author set name = ?, profile = ? where id = ?', [name, profile, id], (error, result) => {
+    var author = require('../model/author')(req.body);
+
+    db.query('update author set name = ?, profile = ? where id = ?', [author.name, author.profile, author.id], (error, result) => {
         if(error) return next(erorr);
 
         res.redirect(`/author`);
@@ -163,7 +145,7 @@ exports.deleteProcess = (req, res, next) => {
     var post = req.body;
     var id = post.id;
         
-    db.query('delete from topic where author_id = ?', [id], (topicDeleteError, result) => {
+    db.query('delete from topic where authorId = ?', [id], (topicDeleteError, result) => {
         if(topicDeleteError) return next(topicDeleteError);
 
         db.query('delete from author where id = ?', [id], (authorDeleteError, result) => {
