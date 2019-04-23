@@ -3,3 +3,5 @@ express/db/db.js
 session/db/connector.js
 */private/*
 webtest/db/connector.js
+promise/connector.js
+node_modules
