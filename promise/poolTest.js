@@ -8,3 +8,11 @@ Promise.using(getSqlConnection(), (conn) => {
         console.log(err)
     })
 })
+
+new Promise.using(getSqlConnection(), (conn) => {
+    return conn.query('select * from author').then(rows => {
+        return console.log(rows)
+    }).catch(err => {
+        console.log(err)
+    })
+})

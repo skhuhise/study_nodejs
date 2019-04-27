@@ -21,6 +21,7 @@ router.post('/create', [
         res.redirect('/')
         return false;
     }
+
     topic.createProcess(req, res);
 })
 

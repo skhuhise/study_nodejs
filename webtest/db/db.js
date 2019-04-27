@@ -1,8 +1,6 @@
-var mysql = require('mysql');
+var mysql = require('promise-mysql');
 var connector = require('./connector');
 
 var db = mysql.createConnection(connector);
-
-db.connect();
 
 module.exports = db;

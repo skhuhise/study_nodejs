@@ -11,9 +11,10 @@ exports.login = (req, res, next) => {
     if(flashMessage.error) {
         feedback = flashMessage.error[0];
     }
-    db.query('select * from topic', (topicsError, topics) => {
-        if(topicsError) return next(topicsError);
 
+    db.then(connection => {
+        return connection.query('select * from topic')
+    }).then(topics => {
         var title = 'Login';
         var body = `
         <div style="color : red">${feedback}</div>
@@ -28,6 +29,8 @@ exports.login = (req, res, next) => {
         var html = template.html(title, list, body, control, login);
 
         res.send(html);
+    }).catch(err => {
+        return next(err);
     })
 }
 
@@ -41,9 +44,10 @@ exports.regist = (req, res, next) => {
     if(flashMessage.error) {
         feedback = flashMessage.error[0];
     }
-    db.query('select * from topic', (topicsError, topics) => {
-        if(topicsError) return next(topicsError);
 
+    db.then(connection => {
+        return connection.query('select * from topic')
+    }).then(topics => {
         var title = 'Regist';
         var body = `
         <div style="color : red">${feedback}</div>
@@ -60,6 +64,8 @@ exports.regist = (req, res, next) => {
         var html = template.html(title, list, body, control, login);
 
         res.send(html);
+    }).catch(err => {
+        return next(err);
     })
 }
 
@@ -70,11 +76,13 @@ exports.registProcess = (req, res, next) => {
     }
     var account = require('../model/account')(req.body);
 
-    db.query('insert into account(email, password, nickname) values(?, ?, ?)', [account.email, account.password, account.nickname], (error, result) => {
-        if(error) return next(error);
-
+    db.then(connection => {
+        return connection.query('insert into account(email, password, nickname) values(?, ?, ?)', [account.email, account.password, account.nickname])
+    }).then(result => {
         res.redirect(`/`);
-     })
+    }).catch(err => {
+        return next(err);
+    })
 }
 
 exports.logout = (req, res, next) => {

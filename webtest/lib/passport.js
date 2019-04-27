@@ -10,8 +10,12 @@ module.exports = (app) => {
         done(null, user.id);
     })
     passport.deserializeUser((id, done) => {
-        db.query('select id, email, nickname from account where id = ?', [id], (accountError, account) => {
+        db.then(connection => {
+            return connection.query('select id, email, nickname from account where id = ?', [id])
+        }).then(account => {
             done(null, account)
+        }).catch(err => {
+            return done(null, false, { message : 'DB ERROR'});
         })
     })
 
@@ -20,16 +24,18 @@ module.exports = (app) => {
             usernameField : 'email'
         },
         (username, password, done) => {
-            db.query('select id, email, nickname from account where email = ? and password = ?', [username, password], (accountError, account) => {
-                if(accountError) return done(null, false, { message: 'DB ERROR'});
+            db.then(connection => {
+                return connection.query('select id, email, nickname from account where email = ? and password = ?', [username, password])
+            }).then(account => {
                 if(account[0] === undefined) return done(null, false, { message : 'Incorrect login'});
 
                 return done(null, account[0], {
                     message : 'Welcome'
                 })
+            }).catch(err => {
+                return done(null, false, { message: 'DB ERROR'});
             })
         })
     )
-
     return passport;
 }
