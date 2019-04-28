@@ -1,4 +1,4 @@
-var sanitizeHtml = require('sanitize-html');
+const sanitizeHtml = require('sanitize-html');
 
 module.exports = {
     html:function(title, list, body, control, login) {
@@ -34,9 +34,9 @@ module.exports = {
     },
 
     list:function(topics) {
-        var orderList = '<ol>';
-        var unorderList = '<ul>';
-        var i = 0;
+        let orderList = '<ol>';
+        let unorderList = '<ul>';
+        let i = 0;
     
         while(i < topics.length) {
             orderList = orderList + `<li><a href="/topic/${topics[i].id}">${sanitizeHtml(topics[i].title)}</a></li>`;
@@ -47,14 +47,14 @@ module.exports = {
         orderList += '</ol>';
         unorderList += '</ul>';
     
-        var list = orderList + unorderList;
+        let list = orderList + unorderList;
     
         return list;
     },
     authorSelect:function(select, selected) {
-        var options = '';
-        for(var i = 0; i < select.length; ++i) {
-            var selectedTag = '';
+        let options = '';
+        for(let i = 0; i < select.length; ++i) {
+            let selectedTag = '';
             if(selected === select[i].id)
                 selectedTag = 'selected';
                 
@@ -67,9 +67,9 @@ module.exports = {
         </select>`
     },
     authorTable:function(authors, isLogin) {
-        var tag = '<table>';
+        let tag = '<table>';
         if(isLogin) {
-            for(var i = 0; i < authors.length; ++i) {
+            for(let i = 0; i < authors.length; ++i) {
                 tag += `
                 <tr>
                     <td>${sanitizeHtml(authors[i].name)}</td>
@@ -87,7 +87,7 @@ module.exports = {
         }
 
         else {
-            for(var i = 0; i < authors.length; ++i) {
+            for(let i = 0; i < authors.length; ++i) {
                 tag += `
                 <tr>
                     <td>${sanitizeHtml(authors[i].name)}</td>

@@ -1,28 +1,21 @@
-var db = require('../db/db');
-var template = require('./template');
-var sanitizeHtml = require('sanitize-html');
-var auth = require('./auth');
-var conn;
+const db = require('../db/db');
+const template = require('./template');
+const sanitizeHtml = require('sanitize-html');
+const auth = require('./auth');
 
-exports.home = (req, res, next) => {
-    var topics;
-    var authors;
+exports.home = async (req, res, next) => {
+    try {
+        const conn = await db;
+        let topics = await conn.query(`select * from topic`)
+        let authors = await conn.query(`select * from author`);
 
-    db.then(connection => {
-        conn = connection;
-        return conn.query(`select * from topic`);
-    }).then(rows => {
-        topics = rows;
-        return conn.query(`select * from author`);
-    }).then(rows => {
-        authors = rows;
-        var title = 'Author';
-        var list = template.list(topics);
-        var isLogin = auth.isLogin(req, res, next);
-        var login = template.login(isLogin);
-        var authorTable = template.authorTable(authors, isLogin);
-        var control = '';
-        var create = '';
+        let title = 'Author';
+        let list = template.list(topics);
+        let isLogin = auth.isLogin(req, res, next);
+        let login = template.login(isLogin);
+        let authorTable = template.authorTable(authors, isLogin);
+        let control = '';
+        let create = '';
 
         if(isLogin) {
             create = `
@@ -35,7 +28,7 @@ exports.home = (req, res, next) => {
             </form>`
         }
 
-        var body = `
+        let body = `
         ${authorTable}
         <style>
             table {
@@ -48,64 +41,58 @@ exports.home = (req, res, next) => {
         ${create}
         `;
 
-        var html = template.html(title, list, body, control, login);
+        let html = template.html(title, list, body, control, login);
 
         res.send(html);
-    }).catch(err => {
+    } catch(err) {
         return next(err);
-    })
+    }
 }
 
-exports.createProcess = (req, res, next) => {
-    var isLogin = auth.isLogin(req, res, next);
+exports.createProcess = async (req, res, next) => {
+    let isLogin = auth.isLogin(req, res, next);
+
     if(!isLogin) {
         res.redirect('/');
         return false;
     }
-    var author = require('../model/author')(req.body);
 
-    db.then(connection => {
-        return connection.query('insert into author(name, profile) values(?, ?)', [author.name, author.profile]);
-    }).then(result => {
+    let author = require('../model/author')(req.body);
+
+    try {
+        const conn = await db;
+        await conn.query('insert into author(name, profile) values(?, ?)', [author.name, author.profile])
         res.redirect(`/author`);
-    }).catch(err => {
+    } catch(err) {
         return next(err);
-    })
+    }
 }
 
-exports.update = (req, res, next) => {
-    var isLogin = auth.isLogin(req, res, next);
+exports.update = async (req, res, next) => {
+    let isLogin = auth.isLogin(req, res, next);
     if(!isLogin) {
         res.redirect('/');
         return false;
     }
-    var id = req.params.id;
-    var topics;
-    var authors;
-    var author;
+    
+    let id = req.params.id;
 
-    db.then(connection => {
-        conn = connection;
-        return conn.query(`select * from topic`);
-    }).then(rows => {
-        topics = rows;
-        return conn.query(`select * from author`);
-    }).then(rows => {
-        authors = rows;
-        return conn.query('select * from author where id = ?', [id]);
-    }).then(rows => {
-        author = rows;
+    try {
+        const conn = await db;
+        let topics = await conn.query('select * from topic');
+        let authors = await conn.query(`select * from author`);
+        let author = await conn.query('select * from author where id = ?', [id]);
 
         if(author[0] === undefined) return next('route');
 
-        var title = 'Author';
-        var authorModel = require('../model/author')(author[0]);
-        var list = template.list(topics);
-        var login = template.login(isLogin);
-        var authorTable = template.authorTable(authors, isLogin);
-        var control = '';
+        let title = 'Author';
+        let authorModel = require('../model/author')(author[0]);
+        let list = template.list(topics);
+        let login = template.login(isLogin);
+        let authorTable = template.authorTable(authors, isLogin);
+        let control = '';
 
-        var body = `
+        let body = `
         ${authorTable}
         <style>
             table {
@@ -128,49 +115,47 @@ exports.update = (req, res, next) => {
         `;
         
 
-        var html = template.html(title, list, body, control, login);
+        let html = template.html(title, list, body, control, login);
 
         res.send(html);
-    }).catch(err => {
+    } catch(err) {
         return next(err);
-    })
+    }
 }
 
-exports.updateProcess = (req, res, next) => {
-    var isLogin = auth.isLogin(req, res, next);
+exports.updateProcess = async (req, res, next) => {
+    let isLogin = auth.isLogin(req, res, next);
     if(!isLogin) {
         res.redirect('/');
         return false;
     }
 
-    var author = require('../model/author')(req.body);
+    let author = require('../model/author')(req.body);
 
-    db.then(connection => {
-        return connection.query('update author set name = ?, profile = ? where id = ?', [author.name, author.profile, author.id]);
-    }).then(result => {
+    try {
+        const conn = await db;
+        await conn.query('update author set name = ?, profile = ? where id = ?', [author.name, author.profile, author.id]);
         res.redirect(`/author`);
-    }).catch(err => {
+    } catch(err) {
         return next(err);
-    })
+    }
 }
 
-exports.deleteProcess = (req, res, next) => {
-    var isLogin = auth.isLogin(req, res, next);
+exports.deleteProcess = async (req, res, next) => {
+    let isLogin = auth.isLogin(req, res, next);
     if(!isLogin) {
         res.redirect('/');
         return false;
     }
-    var post = req.body;
-    var id = post.id;
+    let post = req.body;
+    let id = post.id;
 
-    db.then(connection => {
-        conn = connection;
-        return conn.query('delete from topic where authorId = ?', [id]);
-    }).then(result => {
-        return conn.query('delete from author where id = ?', [id]);
-    }).then(result => {
+    try {
+        const conn = await db;
+        await conn.query('delete from topic where authorId = ?', [id]);
+        await conn.query('delete from author where id = ?', [id]);
         res.redirect('/author');
-    }).catch(err => {
+    } catch(err) {
         return next(err);
-    })
+    }
 }
