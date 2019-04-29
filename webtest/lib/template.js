@@ -1,4 +1,4 @@
-const sanitizeHtml = require('sanitize-html');
+const sanitizeHtml = require('sanitize-html')
 
 module.exports = {
     html:function(title, list, body, control, login) {
@@ -19,7 +19,7 @@ module.exports = {
             ${body}
         </body>
         </html>
-        `;
+        `
     },
 
     login:function(isLogin) {
@@ -27,36 +27,36 @@ module.exports = {
             return `
             <form action="/auth/logout" method="post">
                 <input type="submit" value="logout" />
-            </form>`;
+            </form>`
         }
 
-        return `<a href="/auth/login">login</a> | <a href="/auth/regist">regist</a>`;
+        return `<a href="/auth/login">login</a> | <a href="/auth/regist">regist</a>`
     },
 
     list:function(topics) {
-        let orderList = '<ol>';
-        let unorderList = '<ul>';
-        let i = 0;
+        let orderList = '<ol>'
+        let unorderList = '<ul>'
+        let i = 0
     
         while(i < topics.length) {
-            orderList = orderList + `<li><a href="/topic/${topics[i].id}">${sanitizeHtml(topics[i].title)}</a></li>`;
-            unorderList = unorderList + `<li><a href="/topic/${topics[i].id}">${sanitizeHtml(topics[i].title)}</a></li>`;
-            i++;
+            orderList = orderList + `<li><a href="/topic/${topics[i].id}">${sanitizeHtml(topics[i].title)}</a></li>`
+            unorderList = unorderList + `<li><a href="/topic/${topics[i].id}">${sanitizeHtml(topics[i].title)}</a></li>`
+            i++
         }
     
-        orderList += '</ol>';
-        unorderList += '</ul>';
+        orderList += '</ol>'
+        unorderList += '</ul>'
     
-        let list = orderList + unorderList;
+        let list = orderList + unorderList
     
-        return list;
+        return list
     },
     authorSelect:function(select, selected) {
-        let options = '';
+        let options = ''
         for(let i = 0; i < select.length; ++i) {
-            let selectedTag = '';
+            let selectedTag = ''
             if(selected === select[i].id)
-                selectedTag = 'selected';
+                selectedTag = 'selected'
                 
             options = options + `<option value="${select[i].id}" ${selectedTag}>${sanitizeHtml(select[i].name)}</option>`
         }
@@ -67,7 +67,7 @@ module.exports = {
         </select>`
     },
     authorTable:function(authors, isLogin) {
-        let tag = '<table>';
+        let tag = '<table>'
         if(isLogin) {
             for(let i = 0; i < authors.length; ++i) {
                 tag += `
@@ -97,9 +97,9 @@ module.exports = {
             }
         }
 
-        tag += '</table>';
+        tag += '</table>'
 
-        return tag;
+        return tag
     }
 
 }

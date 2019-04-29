@@ -6,3 +6,5 @@ webtest/db/connector.js
 promise/connector.js
 node_modules
 promise/poolcon.js
+webtest/db/poolcon.js
+webtest/db/pool.js
