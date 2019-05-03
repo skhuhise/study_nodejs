@@ -37,6 +37,7 @@
     "passport-local": "^1.0.0",
     "promise-mysql": "^3.3.1",
     "sanitize-html": "^1.20.0",
-    "session-file-store": "^1.2.0"
+    "session-file-store": "^1.2.0",
+    "vue-cli": "^2.9.6"
   }
 }
